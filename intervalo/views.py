@@ -1,7 +1,7 @@
 from rest_framework import generics
 from intervalo.models import Intervalo
-from intervalo.serializers import IntervaloGetNameProfessorSerializer, IntervaloSerializer
-
+from intervalo.serializers import IntervaloGetNameProfessorSerializer
+from intervalo.serializers import IntervaloSerializer
 
 class IntervaloCreateListView(generics.ListCreateAPIView):
     queryset = Intervalo.objects.all()
