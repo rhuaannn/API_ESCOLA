@@ -1,13 +1,18 @@
 from rest_framework import generics
 from intervalo.models import Intervalo
-from intervalo.serializers import IntervaloGetNameProfessorSerializer
-from intervalo.serializers import IntervaloSerializer
+from intervalo.serializers import IntervaloGetNameProfessorSerializer, IntervaloSerializers
+
 
 class IntervaloCreateListView(generics.ListCreateAPIView):
     queryset = Intervalo.objects.all()
     serializer_class = IntervaloGetNameProfessorSerializer
 
 
-class IntervaloRetriveUpdateDestroyView(generics.RetrieveDestroyAPIView):
+class IntervaloRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Intervalo.objects.all()
-    serializer_class = IntervaloSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'PUT':
+            return IntervaloGetNameProfessorSerializer
+
+        return IntervaloSerializers
