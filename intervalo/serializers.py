@@ -12,7 +12,7 @@ class IntervaloGetNameProfessorSerializer(serializers.ModelSerializer):
         model = Intervalo
         fields = ['id', 'entrada', 'almoco',
                   'retorno_almoco', 'saida_expediente',
-                  'descricao', 'professor_id', 'professor',]
+                  'descricao','professor',]
 
     def create(self, validated_data):
         professor_data = validated_data.pop('professor')
@@ -24,6 +24,26 @@ class IntervaloGetNameProfessorSerializer(serializers.ModelSerializer):
         intervalo_instance = Intervalo.objects.create(
             professor=professor_instance, **validated_data)
         return intervalo_instance
+
+    def update(self, instance, validated_data):
+        professor_data = validated_data.pop('professor')
+        name = professor_data.get('name')
+
+        if Professor.objects.filter(name=name).exists():
+            professor_instance = Professor.objects.get(name=name)
+            for attr, value in professor_data.items():
+                setattr(professor_instance, attr, value)
+            professor_instance.save()
+            print(professor_instance)
+        else:
+            raise serializers.ValidationError(
+                "Professor não cadastrado! ")
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save() 
+
+        return instance
 
     def validate(self, data):
 
