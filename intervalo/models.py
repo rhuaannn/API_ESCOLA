@@ -4,9 +4,9 @@ from professor.models import Professor
 
 
 class Intervalo(models.Model):
-    professor = models.OneToOneField(
-        Professor, null=True, blank=True, on_delete=models.CASCADE,
-        related_name='professor')
+    professor = models.ForeignKey(
+        Professor, on_delete=models.CASCADE,
+        related_name='professor', default=None)
     entrada = models.DateTimeField()
     almoco = models.DateTimeField()
     retorno_almoco = models.DateTimeField()

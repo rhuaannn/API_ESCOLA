@@ -1,7 +1,6 @@
-from datetime import timedelta
 from rest_framework import serializers
+from datetime import timedelta
 from intervalo.models import Intervalo
-from professor.models import Professor
 from professor.serializers import ProfessorSerializerGetName
 
 
@@ -10,57 +9,21 @@ class IntervaloGetNameProfessorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Intervalo
-        fields = ['id', 'entrada', 'almoco',
-                  'retorno_almoco', 'saida_expediente',
-                  'descricao','professor',]
-
-    def create(self, validated_data):
-        professor_data = validated_data.pop('professor')
-        email = professor_data.get('email')
-
-        if Professor.objects.filter(email=email).exists():
-            raise serializers.ValidationError("Esse e-mail já está em uso!")
-        professor_instance = Professor.objects.create(**professor_data)
-        intervalo_instance = Intervalo.objects.create(
-            professor=professor_instance, **validated_data)
-        return intervalo_instance
-
-    def update(self, instance, validated_data):
-        professor_data = validated_data.pop('professor')
-        name = professor_data.get('name')
-
-        if Professor.objects.filter(name=name).exists():
-            professor_instance = Professor.objects.get(name=name)
-            for attr, value in professor_data.items():
-                setattr(professor_instance, attr, value)
-            professor_instance.save()
-            print(professor_instance)
-        else:
-            raise serializers.ValidationError(
-                "Professor não cadastrado! ")
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save() 
-
-        return instance
+        fields = ['id', 'entrada', 'almoco', 'retorno_almoco',
+                  'saida_expediente', 'descricao', 'professor']
 
     def validate(self, data):
+        almoco = data.get('almoco')
+        retorno_almoco = data.get('retorno_almoco')
 
-        retorno_almoco = data['almoco'] + timedelta(minutes=60)
-
-        if Intervalo.objects.filter(almoco=data['almoco']).exists():
+        # Verifica se o horário de retorno do almoço é após o horário de almoço
+        if almoco and retorno_almoco and retorno_almoco <= almoco:
             raise serializers.ValidationError(
-                "Já existe um intervalo para este horário!")
+                "O horário de retorno do almoço deve ser após o horário de almoço.")
 
-        if Intervalo.objects.filter(retorno_almoco=retorno_almoco).exists():
+        # Verifica se a diferença entre o horário de almoço e o horário de retorno do almoço é menor ou igual a 60 minutos
+        if almoco and retorno_almoco and retorno_almoco - almoco > timedelta(minutes=60):
             raise serializers.ValidationError(
-                "Já existe um intervalo para este horário!")
+                "A diferença entre o horário de almoço e o horário de retorno do almoço não pode exceder 60 minutos.")
+
         return data
-
-
-class IntervaloSerializers(serializers.ModelSerializer):
-
-    class Meta:
-        model = Intervalo
-        fields = '__all__'
