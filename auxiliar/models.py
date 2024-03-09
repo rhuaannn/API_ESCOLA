@@ -6,4 +6,4 @@ class Auxiliar(models.Model):
     email = models.EmailField(unique=True)
 
     def __str__(self):
-        return f'"Nome auxiliar: {self.name}, email-Auxiliar{self.email}'
+        return self.name

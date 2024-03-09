@@ -8,6 +8,6 @@ class AuxiliarCreateListView(generics.ListCreateAPIView):
     serializer_class = AuxiliarSerializer
 
 
-class AuxiliarRetriveUpdateDestroyView(generics.RetrieveUpdateAPIView):
+class AuxiliarRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Auxiliar.objects.all()
     serializer_class = AuxiliarSerializer
