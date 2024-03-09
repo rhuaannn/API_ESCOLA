@@ -32,7 +32,7 @@ class IntervaloGetNameProfessorSerializer(serializers.ModelSerializer):
             professor=professor, **validated_data)
 
         return intervalo
-    
+
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(
@@ -58,7 +58,7 @@ class IntervaloGetNameProfessorSerializer(serializers.ModelSerializer):
 
         self.perform_update(serializer)
         return Response(serializer.data)
-    
+
     def validate(self, data):
         almoco = data.get('almoco')
         retorno_almoco = data.get('retorno_almoco')
