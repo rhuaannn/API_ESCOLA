@@ -19,7 +19,7 @@ class IntervaloCreateListView(generics.ListCreateAPIView):
 
 
 class IntervaloRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = ('IsAuthenticated',  GlobalDefaultPermission)
+    permission_classes = (IsAuthenticated,  GlobalDefaultPermission)
     queryset = Intervalo.objects.all()
     serializer_class = IntervaloGetNameProfessorSerializer
 
@@ -28,5 +28,3 @@ class IntervaloRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-
-    
