@@ -8,6 +8,7 @@ from intervalo.views import IntervaloRetriveUpdateDestroyView
 from professor.views import ProfessorCreateListView
 from professor.views import ProfessorRetriveUpdateDestroyView
 
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,5 +20,10 @@ urlpatterns = [
     path('intervalo/<int:pk>', IntervaloRetriveUpdateDestroyView.as_view()),
     
     path('auxiliar/', AuxiliarCreateListView.as_view()),
-    path('auxiliar/<int:pk>', AuxiliarRetriveUpdateDestroyView.as_view())
+    path('auxiliar/<int:pk>', AuxiliarRetriveUpdateDestroyView.as_view()),
+    
+    path('authentication/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('authentication/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('authentication/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
 ]
