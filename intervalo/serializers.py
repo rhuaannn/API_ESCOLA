@@ -4,9 +4,7 @@ from auxiliar.models import Auxiliar
 from intervalo.models import Intervalo
 from professor.models import Professor
 from professor.serializers import ProfessorSerializerGetName
-from auxiliar.serializers import AuxiliarSerializer, AuxiliiarGetNameSerializer
-from django.db.models import Q
-
+from auxiliar.serializers import AuxiliiarGetNameSerializer
 
 class IntervaloGetNameProfessorSerializer(serializers.ModelSerializer):
     professor = ProfessorSerializerGetName(required=False)
@@ -69,19 +67,42 @@ class IntervaloGetNameProfessorSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, data):
+        data = super().validate(data)  # Chama a validação original
+
         almoco = data.get('almoco')
         retorno_almoco = data.get('retorno_almoco')
+        professor = data.get('professor')
+        auxiliar = data.get('auxiliar')
 
-        # Verifica se o horário de retorno do almoço é após o horário de almoço
-        if almoco and retorno_almoco and retorno_almoco <= almoco:
+        if almoco and retorno_almoco and professor and auxiliar:
             raise serializers.ValidationError(
-                "O horário de retorno do almoço deve ser após o horário de almoço."
+                "Você só pode fornecer o nome de um professor ou de um auxiliar, não ambos."
             )
 
-        # Verifica se a diferença entre o horário de almoço e o horário de retorno do almoço é menor ou igual a 60 minutos
-        if almoco and retorno_almoco and retorno_almoco - almoco < timedelta(hours=1):
-            raise serializers.ValidationError(
-                "Intervalo de almoço é de 60minutos - 1hora"
-            )
+        if almoco and retorno_almoco:
+            if professor and auxiliar:
+                raise serializers.ValidationError(
+                    "Você não pode registrar um intervalo entre um professor e um auxiliar."
+                )
+
+            if professor:
+                professor_id = professor.get('id')
+                intervalos_sobrepostos = Intervalo.objects.filter(
+                    almoco__lt=retorno_almoco,
+                    retorno_almoco__gt=almoco,
+                    professor_id=professor_id
+                ).exclude(id=data.get('id'))
+            elif auxiliar:
+                auxiliar_id = auxiliar.get('id')
+                intervalos_sobrepostos = Intervalo.objects.filter(
+                    almoco__lt=retorno_almoco,
+                    retorno_almoco__gt=almoco,
+                    auxiliar_id=auxiliar_id
+                ).exclude(id=data.get('id'))
+
+            if intervalos_sobrepostos.exists():
+                raise serializers.ValidationError(
+                    "O intervalo de almoço entre professor e auxiliar não pode ser igual."
+                )
 
         return data
